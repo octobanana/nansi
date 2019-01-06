@@ -4,8 +4,7 @@ using Parg = OB::Parg;
 #include "ob/term.hh"
 namespace aec = OB::Term::ANSI_Escape_Codes;
 
-#include "ob/string.hh"
-namespace String = OB::String;
+#include <cstddef>
 
 #include <string>
 #include <iostream>
@@ -36,6 +35,15 @@ int program_options(Parg& pg)
   // general flags
   pg.set("help,h", "print the help output");
   pg.set("version,v", "print the program version");
+
+  pg.set("ansi", "allow ansi escape sequences");
+  pg.set("line-wrap", "wrap lines at custom width or terminal width");
+  pg.set("auto-wrap", "wrap lines and auto calculate the indent width");
+  pg.set("first-wrap", "if the indentation level is 0, don't wrap the line");
+
+  pg.set("width", "0", "num", "maximum output width");
+
+  pg.set_stdin();
 
   int status {pg.parse()};
 
@@ -93,6 +101,41 @@ int main(int argc, char *argv[])
 
   try
   {
+    OB::Term::ostream os {std::cout};
+
+    os.line_wrap(false);
+
+    if (pg.get<bool>("line-wrap") || pg.get<bool>("auto-wrap"))
+    {
+      os.line_wrap(true);
+      os.auto_wrap(pg.get<bool>("auto-wrap"));
+
+      if (pg.get<bool>("first-wrap"))
+      {
+        os.first_wrap(false);
+      }
+
+      if (pg.find("width"))
+      {
+        os.width(pg.get<std::size_t>("width"));
+      }
+      else
+      {
+        if (OB::Term::is_term(STDOUT_FILENO))
+        {
+          os.width(OB::Term::width(STDOUT_FILENO));
+        }
+      }
+    }
+
+    if (! pg.get<bool>("ansi"))
+    {
+      os.escape_codes(false);
+    }
+
+    os
+    << pg.get_stdin()
+    << OB::Term::iomanip::flush();
   }
   catch(std::exception const& e)
   {
