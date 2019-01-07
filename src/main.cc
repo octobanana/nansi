@@ -40,6 +40,7 @@ int program_options(Parg& pg)
   pg.set("line-wrap", "wrap lines at custom width or terminal width");
   pg.set("auto-wrap", "wrap lines and auto calculate the indent width");
   pg.set("first-wrap", "if the indentation level is 0, don't wrap the line");
+  pg.set("white-space", "sequences of whitespace will collapse into a single whitespace");
 
   pg.set("width", "0", "num", "maximum output width");
 
@@ -131,6 +132,11 @@ int main(int argc, char *argv[])
     if (! pg.get<bool>("ansi"))
     {
       os.escape_codes(false);
+    }
+
+    if (! pg.get<bool>("white-space"))
+    {
+      os.white_space(false);
     }
 
     os
