@@ -14,7 +14,7 @@ int program_options(Parg& pg);
 
 int program_options(Parg& pg)
 {
-  pg.name("nansi").version("0.1.0 (05.01.2019)");
+  pg.name("nansi").version("0.1.1 (10.01.2019)");
   pg.description("A CLI tool to filter ansi escape sequences and format text streams.");
   pg.usage("[flags] [options] [--] [arguments]");
   pg.usage("[-v|--version]");
